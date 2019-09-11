@@ -5,7 +5,6 @@ import glob
 import cv2
 import re
 import numpy as np
-import tqdm
 import matplotlib.pyplot as plt
 
 def ocr_data(image):
@@ -26,7 +25,7 @@ def ocr_data(image):
         plt.imshow(image, cmap='gray')
         plt.show()
     return data
-def detect_boundbox(image,filename=None,save_txt_fig=True,save_roi=True,save_result=True):
+def detect_boundbox(image,filename=None,save_txt_fig=True,save_roi=True,save_result=True, save_fig=True):
     """
     :param image:  origina image
     :return: [box]
@@ -52,6 +51,12 @@ def detect_boundbox(image,filename=None,save_txt_fig=True,save_roi=True,save_res
     center_x=y+h//2
     center_y=x+w//2
     txt_x,txt_y,txt_w,txt_h=boxes[1]                     # txt box
+    if save_fig:
+        fig=sr_image.copy()
+        cv2.circle(fig,(center_y,center_x),4,(255,0,0),-1)
+        cv2.rectangle(fig,(x,y),(x+w,y+h),(0,255,0),thickness=3)
+        cv2.rectangle(fig,(txt_x,txt_y),(txt_x+txt_w,txt_y+txt_h),color=(0,255,0),thickness=3)
+        cv2.imwrite(os.path.join('fig',filename),cv2.cvtColor(fig,cv2.COLOR_RGB2BGR))
     if save_roi:
         cv2.imwrite(os.path.join('roi',filename),cv2.cvtColor(sr_image[y:y+h,x:x+w,:],cv2.COLOR_RGB2BGR))
     roi=sr_image[txt_y-2:txt_y+txt_h+2,txt_x-2:txt_x+txt_w+2,:]     # add some offset
